@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard — Sector 40 Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#1a1a2e; --paper:#f7f4ef; --gold:#b5860d; --muted:#7a7068; --green:#1a7c3e; --orange:#e65100; --red:#c0392b; --blue:#1a73e8; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); color:var(--ink); font-family:'Inter',sans-serif; min-height:100vh; }
+
+  header { background:var(--ink); padding:28px 40px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+  .header-left h1 { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:900; color:#fff; }
+  .header-left p { color:#aaa; font-size:12px; margin-top:4px; }
+  .header-right { display:flex; gap:10px; align-items:center; }
+  .back-btn { padding:8px 16px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:4px; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; cursor:pointer; text-decoration:none; }
+  .back-btn:hover { background:rgba(255,255,255,0.2); }
+  .sign-out-btn { padding:8px 16px; background:transparent; color:#aaa; border:none; font-family:'Inter',sans-serif; font-size:12px; cursor:pointer; }
+
+  .loading { text-align:center; padding:80px 20px; color:var(--muted); }
+  .signin-prompt { text-align:center; padding:80px 20px; }
+  .signin-prompt h2 { font-family:'Playfair Display',serif; font-size:1.8rem; margin-bottom:12px; }
+  .signin-prompt p { color:var(--muted); margin-bottom:24px; }
+  .google-btn { display:inline-flex; align-items:center; gap:10px; padding:12px 24px; background:#fff; color:var(--ink); border:2px solid #ddd; border-radius:4px; font-family:'Inter',sans-serif; font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+  .google-btn:hover { box-shadow:0 4px 16px rgba(0,0,0,0.15); }
+  .google-btn img { width:20px; height:20px; }
+
+  .main { max-width:700px; margin:0 auto; padding:32px 20px 60px; }
+  .section-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; margin-bottom:16px; padding-bottom:8px; border-bottom:2px solid #e8e0d0; }
+
+  .request-card { background:#fff; border-radius:6px; box-shadow:0 2px 12px rgba(26,26,46,0.08); margin-bottom:16px; overflow:hidden; }
+  .request-card-top { height:4px; }
+  .request-card-body { padding:18px 20px; }
+  .request-book-title { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; margin-bottom:4px; }
+  .request-meta { font-size:12px; color:var(--muted); margin-bottom:14px; }
+  .request-meta span { margin-right:12px; }
+
+  .status-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+  .status-pill { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:600; }
+  .s-pending { background:#f3e5f5; color:#6a1b9a; }
+  .s-arranging { background:#e3f2fd; color:#0d47a1; }
+  .s-ready { background:#e8f5e9; color:#1b5e20; }
+  .s-received { background:#fff8e1; color:#e65100; }
+  .s-returned { background:#f1f8e9; color:#33691e; }
+  .s-overdue { background:#ffebee; color:#b71c1c; }
+
+  .countdown { font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; }
+  .countdown-ok { background:#e8f5e9; color:#2e7d32; }
+  .countdown-warn { background:#fff3e0; color:#e65100; }
+  .countdown-overdue { background:#ffebee; color:#b71c1c; animation:pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+  .action-btn { padding:8px 16px; border:none; border-radius:4px; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; }
+  .btn-received { background:var(--green); color:#fff; }
+  .btn-received:hover { background:#155d2e; }
+  .btn-returned { background:var(--blue); color:#fff; }
+  .btn-returned:hover { background:#1557b0; }
+
+  .status-steps { display:flex; gap:0; margin-bottom:14px; }
+  .step { flex:1; text-align:center; font-size:10px; font-weight:600; padding:6px 4px; background:#f0ede8; color:var(--muted); position:relative; }
+  .step:not(:last-child)::after { content:'›'; position:absolute; right:-6px; top:50%; transform:translateY(-50%); font-size:14px; color:#ccc; z-index:1; }
+  .step.done { background:var(--green); color:#fff; }
+  .step.active { background:var(--gold); color:#fff; }
+
+  .no-requests { text-align:center; padding:48px 20px; color:var(--muted); }
+  .no-requests h3 { font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:8px; color:var(--ink); }
+  .browse-link { display:inline-block; margin-top:16px; padding:10px 20px; background:var(--ink); color:#fff; border-radius:4px; text-decoration:none; font-size:13px; font-weight:600; }
+
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:12px 24px; border-radius:4px; font-size:13px; z-index:9999; display:none; box-shadow:0 4px 20px rgba(0,0,0,0.3); }
+  .toast.show { display:block; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>My Dashboard</h1>
+    <p id="userNameDisplay">Sector 40 Neighbourhood Library</p>
+  </div>
+  <div class="header-right">
+    <a href="library.html" class="back-btn">← Browse Library</a>
+    <button class="sign-out-btn" onclick="signOutUser()">Sign out</button>
+  </div>
+</header>
+
+<div id="appContent">
+  <div class="loading">Loading your dashboard...</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAxZfGdjhdR1y2I5qLR7TeZMjRKjqgUyUU",
+  authDomain: "sector40library.firebaseapp.com",
+  projectId: "sector40library",
+  storageBucket: "sector40library.firebasestorage.app",
+  messagingSenderId: "752708650749",
+  appId: "1:752708650749:web:1484a7203e4032ea46a094"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+const ADMIN_EMAIL = 'dprasad783@gmail.com';
+
+function showToast(msg, duration=3500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+window.signOutUser = async () => { await signOut(auth); window.location.href = 'library.html'; };
+
+window.signInWithGoogle = async () => {
+  try { await signInWithPopup(auth, provider); } catch(e) { showToast('Sign-in failed. Please try again.'); }
+};
+
+function getDaysLeft(dueDateTs) {
+  if (!dueDateTs) return null;
+  const due = dueDateTs.toDate ? dueDateTs.toDate() : new Date(dueDateTs);
+  const now = new Date();
+  const diff = Math.ceil((due - now) / (1000*60*60*24));
+  return diff;
+}
+
+function getCountdownHtml(daysLeft) {
+  if (daysLeft === null) return '';
+  if (daysLeft > 3) return '<span class="countdown countdown-ok">📅 ' + daysLeft + ' days to return</span>';
+  if (daysLeft > 0) return '<span class="countdown countdown-warn">⚠️ ' + daysLeft + ' day' + (daysLeft>1?'s':'') + ' to return</span>';
+  if (daysLeft === 0) return '<span class="countdown countdown-overdue">🚨 Due today — please return!</span>';
+  return '<span class="countdown countdown-overdue">🚨 ' + Math.abs(daysLeft) + ' day' + (Math.abs(daysLeft)>1?'s':'') + ' overdue — Return immediately!</span>';
+}
+
+function getStepIndex(status) {
+  const steps = ['Pending Approval','Being Arranged','Ready for Pickup','Received','Returned in Pickup Box'];
+  return steps.indexOf(status);
+}
+
+function getStatusClass(status) {
+  const map = {
+    'Pending Approval':'s-pending',
+    'Being Arranged':'s-arranging',
+    'Ready for Pickup':'s-ready',
+    'Received':'s-received',
+    'Returned in Pickup Box':'s-returned',
+    'Overdue':'s-overdue'
+  };
+  return map[status] || 's-pending';
+}
+
+function getStatusEmoji(status) {
+  const map = {
+    'Pending Approval':'⏳',
+    'Being Arranged':'📦',
+    'Ready for Pickup':'✅',
+    'Received':'📖',
+    'Returned in Pickup Box':'🔄',
+    'Overdue':'🚨'
+  };
+  return map[status] || '⏳';
+}
+
+const STEPS = ['Pending Approval','Being Arranged','Ready for Pickup','Received','Returned in Pickup Box'];
+
+async function markReceived(requestId) {
+  try {
+    await updateDoc(doc(db,'requests',requestId), {
+      status: 'Received',
+      receivedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    showToast('Marked as Received. Enjoy your book! Remember to return within 14 days.');
+  } catch(e) { showToast('Error updating status. Please try again.'); }
+}
+
+async function markReturned(requestId) {
+  try {
+    await updateDoc(doc(db,'requests',requestId), {
+      status: 'Returned in Pickup Box',
+      returnedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    showToast('Thank you for returning the book! The library admin will verify and close your request.');
+  } catch(e) { showToast('Error updating status. Please try again.'); }
+}
+
+window.markReceived = markReceived;
+window.markReturned = markReturned;
+
+function renderRequests(requests) {
+  if (requests.length === 0) {
+    return `<div class="no-requests">
+      <h3>No active requests</h3>
+      <p>Browse the catalogue and request a book to get started.</p>
+      <a href="library.html" class="browse-link">Browse Library</a>
+    </div>`;
+  }
+
+  const active = requests.filter(r => !['Returned in Pickup Box','Completed'].includes(r.status));
+  const past = requests.filter(r => ['Returned in Pickup Box','Completed'].includes(r.status));
+
+  let html = '';
+
+  if (active.length > 0) {
+    html += '<div class="section-title">Active Request' + (active.length>1?'s':'') + '</div>';
+    active.forEach(r => {
+      const daysLeft = r.status === 'Received' ? getDaysLeft(r.dueDate) : null;
+      const stepIdx = getStepIndex(r.status);
+      const stepsHtml = STEPS.map((s,i) => {
+        let cls = '';
+        if (i < stepIdx) cls = 'done';
+        else if (i === stepIdx) cls = 'active';
+        const labels = ['Requested','Arranging','Ready','Received','Returned'];
+        return '<div class="step ' + cls + '">' + labels[i] + '</div>';
+      }).join('');
+
+      let actionHtml = '';
+      if (r.status === 'Ready for Pickup') {
+        actionHtml = '<button class="action-btn btn-received" onclick="markReceived(\'' + r.id + '\')">✓ I have collected the book</button>';
+      } else if (r.status === 'Received') {
+        actionHtml = '<button class="action-btn btn-returned" onclick="markReturned(\'' + r.id + '\')">📦 I have returned the book</button>';
+      }
+
+      const requestDate = r.requestedAt ? (r.requestedAt.toDate ? r.requestedAt.toDate().toLocaleDateString('en-IN') : new Date(r.requestedAt).toLocaleDateString('en-IN')) : 'Recently';
+      const dueDateStr = r.dueDate ? (r.dueDate.toDate ? r.dueDate.toDate().toLocaleDateString('en-IN') : new Date(r.dueDate).toLocaleDateString('en-IN')) : null;
+
+      const spineColors = {'Leadership':'#2980b9','Business Strategy':'#16a085','Innovation':'#8e44ad','Personal Finance':'#d35400','Biography':'#c0392b','Self-Help':'#e67e22','Spirituality':'#6c3483','Science & Tech':'#27ae60','Fiction':'#2c3e50','India':'#f39c12','Other':'#7f8c8d'};
+
+      html += `<div class="request-card">
+        <div class="request-card-top" style="background:#1a7c3e"></div>
+        <div class="request-card-body">
+          <div class="request-book-title">${r.bookTitle}</div>
+          <div class="request-meta">
+            <span>📅 Requested: ${requestDate}</span>
+            ${dueDateStr ? '<span>⏰ Due: ' + dueDateStr + '</span>' : ''}
+          </div>
+          <div class="status-steps">${stepsHtml}</div>
+          <div class="status-row">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <span class="status-pill ${getStatusClass(r.status)}">${getStatusEmoji(r.status)} ${r.status}</span>
+              ${daysLeft !== null ? getCountdownHtml(daysLeft) : ''}
+            </div>
+            ${actionHtml}
+          </div>
+          ${r.status === 'Pending Approval' ? '<p style="font-size:11px;color:var(--muted);margin-top:10px;">The library admin has received your request and will arrange the book for pickup shortly.</p>' : ''}
+          ${r.status === 'Being Arranged' ? '<p style="font-size:11px;color:var(--muted);margin-top:10px;">Your book is being arranged. You will see the status update to Ready for Pickup when it is placed in the cabinet.</p>' : ''}
+          ${r.status === 'Ready for Pickup' ? '<p style="font-size:11px;color:var(--green);margin-top:10px;font-weight:600;">Your book is in the common area cabinet. Please collect it at your convenience and click the button above once you have it.</p>' : ''}
+          ${r.status === 'Received' ? '<p style="font-size:11px;color:var(--muted);margin-top:10px;">Enjoy your book! Place it back in the common area cabinet when done and click the button above.</p>' : ''}
+        </div>
+      </div>`;
+    });
+  }
+
+  if (past.length > 0) {
+    html += '<div class="section-title" style="margin-top:32px">Past Borrows</div>';
+    past.forEach(r => {
+      const requestDate = r.requestedAt ? (r.requestedAt.toDate ? r.requestedAt.toDate().toLocaleDateString('en-IN') : new Date(r.requestedAt).toLocaleDateString('en-IN')) : '';
+      html += `<div class="request-card">
+        <div class="request-card-top" style="background:#7f8c8d"></div>
+        <div class="request-card-body">
+          <div class="request-book-title">${r.bookTitle}</div>
+          <div class="request-meta"><span>📅 Requested: ${requestDate}</span></div>
+          <div class="status-row">
+            <span class="status-pill s-returned">✅ ${r.status}</span>
+          </div>
+        </div>
+      </div>`;
+    });
+  }
+
+  return html;
+}
+
+function renderSignIn() {
+  return `<div class="signin-prompt">
+    <h2>Sign in to view your dashboard</h2>
+    <p>Use your Google account to track your book requests and returns.</p>
+    <button class="google-btn" onclick="signInWithGoogle()">
+      <img src="https://www.google.com/favicon.ico" alt="G"> Sign in with Google
+    </button>
+  </div>`;
+}
+
+onAuthStateChanged(auth, user => {
+  const content = document.getElementById('appContent');
+  if (!user) {
+    content.innerHTML = renderSignIn();
+    return;
+  }
+
+  document.getElementById('userNameDisplay').textContent = user.displayName || user.email;
+
+  const q = query(
+    collection(db, 'requests'),
+    where('userId', '==', user.uid),
+    orderBy('requestedAt', 'desc')
+  );
+
+  onSnapshot(q, snap => {
+    const requests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Check for overdue and send notification if needed
+    requests.forEach(async r => {
+      if (r.status === 'Received' && r.dueDate) {
+        const daysLeft = getDaysLeft(r.dueDate);
+        if (daysLeft !== null && daysLeft < 0 && !r.overdueNotified) {
+          // Mark as notified to avoid repeated emails
+          await updateDoc(doc(db,'requests',r.id), { overdueNotified: true });
+        }
+      }
+    });
+    content.innerHTML = '<div class="main">' + renderRequests(requests) + '</div>';
+  });
+});
+</script>
+</body>
+</html>
