@@ -157,6 +157,7 @@
         <button id="mRequestBtn" class="modal-request-btn"></button>
       </div>
       <div class="modal-hint" id="mHint"></div>
+      <div id="mSummaryPanel"></div>
     </div>
   </div>
 </div>
@@ -436,6 +437,171 @@ const BOOKS = [
   { title:"Fish Omnibus", author:"Stephen C. Lundin, Harry Paul & John Christensen", category:"Leadership", desc:"A collected edition of the Fish! series — the complete philosophy for creating vibrant workplaces through energy, passion, and a positive attitude.", status:"Available" },
 ];
 
+
+// ── BOOK SUMMARIES ─────────────────────────────────────────────────────────
+const BOOK_SUMMARIES = {
+  "The Three Laws of Performance": {
+    summary: "Every organization has a 'default future' — what people assume will happen based on past patterns. Zaffron and Logan argue that performance is shaped not by facts but by how situations 'occur' to people — their inner narrative. The three laws state: (1) how people perform correlates to how the world occurs to them; (2) how the world occurs to them arises in language; (3) future-based language transforms how the world occurs to them. By changing the stories people tell about their future, leaders can unlock breakthroughs that seem impossible.",
+    insight: "People don't perform based on facts — they perform based on their interpretation of facts. Change the narrative, change the performance.",
+    bestFor: "Leaders and managers seeking to transform organizational culture and break through entrenched performance barriers."
+  },
+  "Jugaad Innovation": {
+    summary: "Jugaad — a Hindi word for an improvised, ingenious fix — is a philosophy of frugal, flexible innovation born in India's resource-constrained environment. The authors identify six principles: seek opportunity in adversity, do more with less, think and act flexibly, keep it simple, include the margin, and follow your heart. Through 20+ case studies from companies including GE, Renault, and Philips, the book argues that Western firms drowning in expensive R&D must learn from grassroots innovators in India, China, and Africa who consistently do more with less.",
+    insight: "Constraints are not obstacles to innovation — they are its most powerful driver. The best innovations often come from those with the least resources.",
+    bestFor: "Innovation leaders, entrepreneurs, and anyone interested in applying emerging market thinking to developed market problems."
+  },
+  "Drive": {
+    summary: "Pink demolishes the carrot-and-stick model of motivation with four decades of behavioral science research. His 'Motivation 3.0' framework argues that for complex, creative work, external rewards actually reduce performance — the overjustification effect. True motivation for knowledge workers comes from three intrinsic elements: Autonomy (control over task, time, technique, and team), Mastery (the drive to improve at something that matters), and Purpose (contributing to something larger than oneself). Companies that give employees free time for personal projects consistently generate breakthrough innovations.",
+    insight: "Pay people enough that money is not an issue, then focus entirely on autonomy, mastery, and purpose. The carrot-and-stick works for mechanical tasks — it destroys creative ones.",
+    bestFor: "Managers, leaders, parents, and educators who want to understand what really motivates people and create environments where they thrive."
+  },
+  "The Toyota Way": {
+    summary: "Jeffrey Liker spent years studying Toyota's production system to distill 14 management principles organized around four themes: long-term philosophy, the right process produces right results, developing people and partners, and continuously solving root problems. The heart of the Toyota Way is kaizen (continuous improvement) combined with respect for people. Every Toyota employee is empowered to stop the production line when they spot a problem — a radical departure from command-and-control manufacturing that made Toyota the world's most reliable carmaker.",
+    insight: "The goal is not to fix problems quickly — it is to eliminate the root cause so the problem never recurs. Slow down to go fast.",
+    bestFor: "Operations managers, manufacturing leaders, and anyone interested in building quality and efficiency into organizational processes."
+  },
+  "The Balanced Scorecard": {
+    summary: "Kaplan and Norton argued that managing a company by financial metrics alone is like flying a plane with only one instrument. Their Balanced Scorecard framework tracks performance across four perspectives simultaneously: Financial (how do we look to shareholders?), Customer (how do customers see us?), Internal Business Process (what must we excel at?), and Learning & Growth (can we continue to improve?). By translating strategy into measurable objectives across all four dimensions, organizations align every employee's daily actions with long-term vision.",
+    insight: "What you measure is what you manage. Most companies measure only financial outcomes — by then it is too late to change course. Lead indicators in the other three perspectives tell you where you are heading.",
+    bestFor: "Strategy leaders, CFOs, and anyone responsible for translating organizational strategy into operational execution."
+  },
+  "The Innovator's Dilemma": {
+    summary: "Christensen's landmark research showed that well-managed, customer-focused companies consistently lose market leadership to disruptive innovators — not because of bad management, but because of good management. When companies listen too carefully to existing customers and invest in sustaining innovations, they miss the smaller, simpler, cheaper disruptive technologies that eventually overtake them. Disruptive innovation starts at the low end of the market — where incumbents are happy to cede ground — and then relentlessly moves upmarket.",
+    insight: "The very practices that make great companies successful — listening to customers, investing in profitable innovations — are precisely what makes them vulnerable to disruption.",
+    bestFor: "Technology leaders, strategists, investors, and entrepreneurs seeking to understand how industries evolve and where the next disruption is coming from."
+  },
+  "Built to Last": {
+    summary: "Collins and Porras studied 18 visionary companies that had outperformed the stock market by 15 times over 50+ years. Their finding was counterintuitive: visionary companies are not built around great ideas or charismatic leaders but around a core ideology — a set of values and purpose so deeply held that it guides every decision. They also embrace the 'Genius of the AND' — being both idealistic AND profit-oriented, both stable AND experimental — rather than accepting the 'Tyranny of the OR.'",
+    insight: "Great companies don't ask 'What should we value?' — they already know. The core ideology is not created; it is discovered. Clock-building, not time-telling.",
+    bestFor: "CEOs, entrepreneurs, and strategy leaders interested in building organizations that outlast their founders and outperform over decades."
+  },
+  "Originals": {
+    summary: "Adam Grant challenges the myth that original thinkers are bold, fearless risk-takers who act on their first instinct. His research shows the opposite: the most creative people are full of doubt, procrastinate strategically, and take calculated risks. Originals often have a 'vuja de' moment — seeing familiar things with fresh eyes. They champion ideas by building coalitions, choosing the right moment, and knowing which battles to fight. Surprisingly, diverse hobbies and early failure experiences predict originality more than natural talent.",
+    insight: "The greatest originals are not the people who never doubt — they doubt constantly but proceed anyway. Doubt your ideas, not your ability to execute them.",
+    bestFor: "Creatives, leaders, entrepreneurs, and anyone who wants to champion new ideas in resistant environments."
+  },
+  "Fooled by Randomness": {
+    summary: "Taleb's provocative debut argues that humans systematically overestimate skill and underestimate luck in explaining success — a bias he calls survivorship bias. We see the successful trader and ignore the thousands who failed using identical strategies. Our brains are wired to find patterns in random noise, confuse correlation with causation, and be fooled by rare high-impact events. Drawing on probability theory and cognitive psychology, Taleb dismantles the narratives we construct around success and urges intellectual humility.",
+    insight: "We are not rational — we are rationalizing. We construct a story around outcomes and call it insight. Most success is a combination of talent and luck, in proportions we will never know.",
+    bestFor: "Investors, traders, business leaders, and anyone interested in probability, decision-making under uncertainty, and the limits of human cognition."
+  },
+  "Execution: The Discipline of Getting Things Done": {
+    summary: "Bossidy and Charan argue that strategy without execution is hallucination. The missing link between aspiration and results is execution — a discipline and a system. They identify three core processes that must be integrated: the People Process (selecting and developing the right people), the Strategy Process (creating a realistic plan), and the Operations Process (translating plans into specific actions). Most strategy failures are execution failures caused by wrong people in key roles and disconnected planning.",
+    insight: "The leader's most important job is not setting strategy — it is building and running a system of three interlocked processes: people, strategy, and operations.",
+    bestFor: "CEOs, senior leaders, and managers responsible for turning plans into measurable results across large organizations."
+  },
+  "Jack: Straight from the Gut": {
+    summary: "Jack Welch's memoir chronicles his 20-year transformation of GE from a $13 billion to a $400 billion company. His management philosophy centered on differentiation — being brutally honest about who the top, middle, and bottom performers are. Welch championed boundarylessness, Work-Out (rapid problem-solving), and Six Sigma (eliminating defects). He believed the leader's primary job is to allocate resources — especially people — and that running a large company requires making tough calls others avoid.",
+    insight: "Before you are a leader, success is about growing yourself. When you become a leader, success is about growing others.",
+    bestFor: "Aspiring leaders, executives, and business students seeking a frank account of what leading a major corporation actually requires."
+  },
+  "In Search of Excellence": {
+    summary: "Peters and Waterman studied 43 of America's best-run companies to identify common patterns of success. Their eight attributes — a bias for action, closeness to the customer, autonomy and entrepreneurship, productivity through people, hands-on value-driven management, sticking to the knitting, simple form and lean staff, and simultaneous loose-tight properties — became the foundation of management thinking for a generation. The first book to argue that culture, values, and people practices mattered as much as strategy.",
+    insight: "The excellent companies were brilliant on the basics. They were not knocked out by competitors' genius — they were outmaneuvered by their own complexity. Keep it simple.",
+    bestFor: "Business leaders, managers, and students of organizational management seeking timeless principles of operational excellence."
+  },
+  "The Alchemist": {
+    summary: "Santiago, a young Andalusian shepherd, dreams of treasure buried near the Egyptian pyramids. His journey across Spain, Morocco, and the Sahara becomes a meditation on following one's Personal Legend — the thing you have always wanted to accomplish. Coelho weaves Sufi, Christian, and alchemical traditions into a fable about the Soul of the World — the universal force that conspires to help those who pursue their deepest dreams. The journey of self-discovery is more valuable than the destination.",
+    insight: "When you want something, all the universe conspires in helping you to achieve it. The fear of failure is always greater than the failure itself.",
+    bestFor: "Anyone at a crossroads, seeking meaning, or needing the courage to pursue what they truly want from life."
+  },
+  "Think and Grow Rich": {
+    summary: "Hill spent 20 years interviewing over 500 wealthy Americans — including Carnegie, Ford, Rockefeller, and Edison — to distill 13 principles of success. The foundation is the power of a burning desire combined with definiteness of purpose, faith, autosuggestion, specialized knowledge, imagination, organized planning, decision, persistence, the mastermind, and the subconscious mind. Hill's central argument — that thoughts are things and a definitized desire held with faith tends to materialize — has influenced more self-made millionaires than any other book.",
+    insight: "Whatever the mind can conceive and believe, it can achieve. The starting point of all achievement is a burning desire — not a wish, but a white-hot, obsessive, relentless desire.",
+    bestFor: "Entrepreneurs, aspiring achievers, and anyone seeking a classic framework for setting and pursuing ambitious goals with total commitment."
+  },
+  "The Power of Now": {
+    summary: "Tolle's transformational work emerged from a personal crisis in which he experienced a shift from near-suicidal despair to profound peace. His central insight is that most human suffering is created by the mind itself — specifically identification with the stream of compulsive thought, the 'pain-body.' The present moment is the only reality; the past and future exist only as mental constructs. By observing the thinking mind without identifying with it, one accesses a state of presence that is naturally peaceful, creative, and alive.",
+    insight: "You are not your mind. The beginning of freedom is realising that you are the observer of the thought, not the thought itself.",
+    bestFor: "Anyone experiencing anxiety or stress, and anyone curious about Eastern philosophy applied to daily Western life."
+  },
+  "The 8th Habit": {
+    summary: "Covey argues that the Industrial Age management model — treating people as things to be controlled — is catastrophically mismatched with the Knowledge Age. The 8th Habit is to Find Your Voice and Inspire Others to Find Theirs. Voice is the intersection of talent (what you do best), passion (what you love), need (what the world needs), and conscience (what you feel is right). Organizations that help people find their voice — through vision, discipline, passion, and conscience — unleash discretionary energy that is the last sustainable competitive advantage.",
+    insight: "Between stimulus and response there is a space. In that space lies our freedom to choose our response. In our response lies our growth and our freedom.",
+    bestFor: "Leaders who want to move beyond management to genuine leadership — inspiring rather than managing."
+  },
+  "Wings of Fire": {
+    summary: "Kalam's autobiography traces his journey from the son of a boat owner in Rameswaram to the architect of India's missile programme. Written with remarkable clarity and humility, it covers his work on India's first satellite launch vehicle SLV-3, the Agni and Prithvi missiles, and the Pokhran nuclear tests. What makes it remarkable is Kalam's account of failure — the early SLV failure he personally took responsibility for — and his conviction that India's destiny is in the hands of its young people.",
+    insight: "You have to dream before your dreams can come true. Dream, dream, dream — and then convert those dreams into thoughts and thoughts into action.",
+    bestFor: "Young Indians seeking inspiration, aspiring scientists and engineers, and anyone who believes in the transformative power of perseverance and purpose."
+  },
+  "Steve Jobs": {
+    summary: "Based on 40 exclusive interviews with Jobs and over 100 interviews with family, friends, and rivals, Isaacson's biography reveals both the genius and the darkness of Apple's founder. Jobs' management philosophy — reality distortion field, insistence on end-to-end control, obsessive attention to design, and brutal honesty — produced the Mac, iPod, iPhone, iPad, and Pixar. The book is candid about his cruelty, his abandoned daughter, his medical denial, and his rivalries. Creativity as inseparable from intensity.",
+    insight: "The people who are crazy enough to think they can change the world are the ones who do. Creativity is connecting things others cannot see.",
+    bestFor: "Entrepreneurs, designers, technologists, and anyone fascinated by the intersection of art, technology, and obsessive ambition."
+  },
+  "Elon Musk": {
+    summary: "Vance's biography charts Musk's journey from a difficult South African childhood to building simultaneously the world's most ambitious electric car company (Tesla), rocket company (SpaceX), and solar energy company (SolarCity). Musk is driven by a genuine belief that humanity must become multiplanetary to survive and that sustainable energy is an existential imperative. His management style — setting seemingly impossible deadlines and accepting nothing less than the best — has produced real breakthroughs that experts said were impossible.",
+    insight: "The first step is to establish that something is possible; then probability will occur. Musk does not ask 'How can we improve?' — he asks 'What would have to be true for this to work?'",
+    bestFor: "Entrepreneurs, engineers, and anyone fascinated by what a single person with total conviction can build against all odds."
+  },
+  "Imagining India": {
+    summary: "Nilekani — the architect of Aadhaar and co-founder of Infosys — examines the ideas that have shaped modern India through four categories: ideas embraced (democracy, entrepreneurship), ideas in progress (infrastructure, urbanization), ideas in conflict (labour laws, higher education), and ideas ignored (primary education, healthcare). Written with intellectual depth and insider access, it is both a diagnosis of India's constraints and a road map for the reforms needed to sustain growth. Prescient in its identification of digital identity as transformational.",
+    insight: "India's greatest challenge is not poverty — it is the inability to scale solutions. What works in one village must work in 600,000. The only way is through technology and institutions.",
+    bestFor: "Policy makers, business leaders operating in India, and anyone seeking to understand modern India's potential and constraints."
+  },
+  "Freedom at Midnight": {
+    summary: "Lapierre and Collins reconstruct the final year of British rule in India with novelistic detail — the personalities of Mountbatten, Gandhi, Nehru, Jinnah, and the princes who had to choose their fate. Based on hundreds of interviews with surviving participants, it captures the chaos, bloodshed, and extraordinary political negotiation of Partition. The scale of the human tragedy — an estimated one million dead, 12 million displaced — is rendered with emotional force alongside the political drama of the transfer of power.",
+    insight: "The greatest act of political improvisation in history — a subcontinent divided in 73 days by a lawyer who had never been to India. The consequences are still being lived.",
+    bestFor: "History enthusiasts, those seeking to understand India and Pakistan's relationship, and anyone interested in how political decisions shape millions of lives."
+  },
+  "The White Tiger": {
+    summary: "Adiga's Booker Prize-winning novel is narrated by Balram Halwai, a driver from rural Bihar who murders his employer and escapes to Bangalore to become an entrepreneur. Told as letters to China's premier, it is a savage indictment of India's 'Rooster Coop' — the social structure that keeps the poor trapped in servitude through family loyalty, debt, and the dream of eventual reward. Balram's voice — sardonic, self-aware, and morally complex — forces the reader to confront the inequality beneath the India Shining narrative.",
+    insight: "India is two countries in one — an India of Light and an India of Darkness. The India of Darkness has learned that the only way out of the Rooster Coop is to do something the roosters cannot imagine.",
+    bestFor: "Fiction readers seeking social commentary and those interested in modern India's inequality."
+  },
+  "Bhagavad Gita As It Is": {
+    summary: "The most widely distributed edition of the 5,000-year-old Sanskrit dialogue between prince Arjuna and his charioteer Krishna on the battlefield of Kurukshetra. When Arjuna loses the will to fight, Krishna expounds the philosophy of duty, the nature of the self, and the path to liberation. The central teachings on karma (right action), yoga (paths to the divine), and atman (the immortal self) remain among humanity's most profound spiritual insights. Prabhupada's extensive commentary provides the Vaishnava perspective.",
+    insight: "You have a right to perform your prescribed duties, but you are not entitled to the fruits of your actions. Act without attachment to results.",
+    bestFor: "Seekers of spiritual wisdom, students of Indian philosophy, and anyone navigating a moment of crisis or existential questioning."
+  },
+  "The Subtle Art of Not Giving a F*ck": {
+    summary: "Manson's counterintuitive self-help manifesto argues that the relentless pursuit of positivity is itself a source of suffering. The key to a good life is not giving a f*ck about more things, but about fewer, better things — things aligned with your deepest values. Drawing on Stoic philosophy, Buddhist thought, and evolutionary psychology, Manson argues that pain and struggle are not obstacles to meaning but the source of it. Entitlement — believing one deserves a good life without earning it — is the defining psychological problem of the modern age.",
+    insight: "The desire for more positive experience is itself a negative experience. The acceptance of negative experience is itself a positive experience. Wanting to feel good all the time prevents you from feeling good.",
+    bestFor: "Anyone tired of conventional self-help, young adults seeking a more honest framework for life, and those dealing with anxiety or a lack of direction."
+  },
+  "Only the Paranoid Survive": {
+    summary: "Intel's legendary CEO Andy Grove introduces the concept of Strategic Inflection Points — moments when the fundamentals of a business change so radically that an organization must transform or die. Grove uses Intel's own near-death experience — the shift from memory chips to microprocessors — as the central case study. He argues that success breeds complacency, and that the only protection against disruption is a culture of productive paranoia: constantly questioning what could destroy you before it does.",
+    insight: "Success sows the seeds of its own destruction. The more successful you are, the more people want a piece of you — which is exactly when you become most vulnerable.",
+    bestFor: "Technology leaders, strategists, and entrepreneurs navigating rapidly changing industries where yesterday's strength becomes tomorrow's trap."
+  },
+  "First, Break All the Rules": {
+    summary: "Buckingham and Coffman present the findings of Gallup's landmark study of 80,000 managers across 400 companies. The best managers break virtually every conventional rule: rather than fixing weaknesses they focus on strengths; rather than treating everyone the same they treat each person differently. The book identifies 12 questions — the Q12 — that measure employee engagement, and argues that people don't quit companies, they quit managers. The immediate manager is the single biggest factor in productivity, profitability, and retention.",
+    insight: "People don't change that much. Don't waste time trying to put in what was left out. Try to draw out what was left in. That is hard enough.",
+    bestFor: "Managers at every level seeking evidence-based guidance on what actually drives employee performance and engagement."
+  },
+  "Competing for the Future": {
+    summary: "Hamel and Prahalad argue that most companies are too focused on competing for the present — restructuring, reengineering, downsizing — and not enough on creating the future. They introduce core competencies — the bundle of skills and technologies enabling a company to provide specific customer benefits — and strategic intent — a dream that stretches the organization's capabilities. Companies that reach the future first, like Canon, NEC, and Honda, do so by imagining a competitive space that does not yet exist.",
+    insight: "The real issue is not benchmarking your competitor's current products — it is imagining products and services that customers don't yet know they need and building them before anyone else.",
+    bestFor: "Strategy leaders, CEOs, and innovation teams seeking to shift from reactive to proactive strategy."
+  },
+  "The Fifth Discipline": {
+    summary: "Senge argues that the organizations that will truly excel are those that discover how to tap people's commitment to learn at all levels — the Learning Organization. Five disciplines build such an organization: Personal Mastery, Mental Models, Shared Vision, Team Learning, and Systems Thinking — the fifth discipline that integrates the others. Systems thinking reveals that most organizational problems are not caused by external forces but by our own past decisions creating unintended feedback loops.",
+    insight: "Today's problems come from yesterday's solutions. We tend to fix symptoms rather than causes — and the fixes often make things worse in the long run. The best leaders are systems thinkers.",
+    bestFor: "Leaders seeking to build learning cultures, systems thinkers, and anyone interested in why organizations repeatedly create the problems they are trying to solve."
+  },
+  "Who Says Elephants Can't Dance?": {
+    summary: "Gerstner recounts how he turned around IBM — writing off $8 billion, cutting 35,000 jobs, and transforming a dying hardware manufacturer into a globally dominant services and consulting business. His central insight was that IBM's problem was not strategy but culture — an inward-looking, bureaucratic culture that had lost touch with customers. He refused to break up IBM despite enormous pressure, arguing that integration was IBM's core competitive advantage. A candid account of the messy reality of transforming a giant.",
+    insight: "Culture is not one aspect of the game — it is the game. In the end, an organization is nothing more than the collective capacity of its people to create value.",
+    bestFor: "Leaders tasked with organizational transformation, CEOs of large companies, and anyone studying the mechanics of corporate turnaround."
+  },
+  "Cashflow Quadrant": {
+    summary: "Kiyosaki's sequel to Rich Dad Poor Dad maps four ways of generating income: Employee (trading time for money), Self-Employed (owning a job), Business Owner (owning a system that employs others), and Investor (money working for you). Financial freedom requires moving from the left side to the right side of the quadrant — which requires a fundamental change in mindset, not just tactics. Each quadrant requires different skills, values, and ways of thinking about money, risk, and time.",
+    insight: "The rich don't work for money — money works for them. The E and S quadrants trade time for money; the B and I quadrants multiply money without trading time.",
+    bestFor: "Anyone seeking financial independence, aspiring entrepreneurs, and those questioning whether the traditional career path is the only route to security."
+  },
+  "Don't Sweat the Small Stuff": {
+    summary: "Carlson's hugely popular book offers 100 simple strategies for keeping daily irritations in perspective and finding peace in a busy life. The core insight — that most of what we worry about is small stuff that will not matter in a year — is simple but transformative when applied consistently. Strategies include: make peace with imperfection, ask 'will this matter in a year?', practice random acts of kindness, choose your battles, and become more patient.",
+    insight: "When you die, your inbox will not be empty. The small things we stress about are almost never worth the mental energy we devote to them.",
+    bestFor: "Anyone feeling overwhelmed by daily life or seeking a gentler, more philosophical approach to everyday irritations."
+  },
+  "The Starfish and the Spider": {
+    summary: "Brafman and Beckstrom reveal why decentralized organizations are inherently different from and often more resilient than centralized ones. Cut off a spider's head and it dies; cut off a starfish's arm and it grows a new one. Decentralized organizations like Alcoholics Anonymous, Wikipedia, and open-source software have no head — attack one part and the organization spreads. In a networked world, the starfish model is increasingly winning against the spider.",
+    insight: "When attacked, a decentralized organization becomes stronger. The more you try to suppress it, the more it multiplies. The power is in the distribution, not the center.",
+    bestFor: "Leaders building collaborative organizations, entrepreneurs designing platforms, and anyone studying how power and resilience work in the digital age."
+  }
+};
+
 let activeFilter = 'All';
 let activeIndex = null;
 let currentUser = null;
@@ -601,8 +767,55 @@ function openModal(i) {
     btn.onclick = () => openRequestForm(b.title);
     document.getElementById('mHint').textContent = 'Your request will be sent immediately. Track progress on your personal dashboard.';
   }
+  // Render summary panel
+  const summaryEl = document.getElementById('mSummaryPanel');
+  const s = BOOK_SUMMARIES[b.title];
+  if (s) {
+    summaryEl.innerHTML =
+      '<div class="book-summary-panel">' +
+        '<div class="summary-section"><div class="summary-label">What this book is about</div><div class="summary-text">' + s.summary + '</div></div>' +
+        '<div class="insight-box"><div class="insight-label">Key Insight</div><div class="insight-text">' + s.insight + '</div></div>' +
+        '<div class="summary-section"><div class="summary-label">Best for</div><div class="bestfor-text">' + s.bestFor + '</div></div>' +
+      '</div>';
+  } else {
+    summaryEl.innerHTML =
+    summaryEl.innerHTML = '<div class="book-summary-panel"><button class="ai-summary-btn" id="aiSumBtn">✨ Get AI-generated summary</button></div>';
+    document.getElementById('aiSumBtn').addEventListener('click', () => loadAISummary(b.title, b.author));
+  }
   document.getElementById('modalOverlay').classList.add('open');
 }
+
+window.loadAISummary = async function(title, author) {
+  const btn = document.getElementById('aiSumBtn');
+  const panel = document.getElementById('mSummaryPanel');
+  if (btn) btn.style.display = 'none';
+  panel.innerHTML += '<div class="ai-loading">Generating summary...</div>';
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: 'Write a book summary for "' + title + '" by ' + author + '. Return ONLY a JSON object with these exact keys: {"summary": "3-4 sentence description of the core ideas", "insight": "the single most memorable insight or quote concept from the book in one sentence", "bestFor": "who would benefit most from reading this book in one sentence"}. No markdown, no backticks, just the JSON object.'
+        }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content[0].text;
+    const s = JSON.parse(text);
+    panel.innerHTML =
+      '<div class="book-summary-panel">' +
+        '<div class="summary-section"><div class="summary-label">What this book is about</div><div class="summary-text">' + s.summary + '</div></div>' +
+        '<div class="insight-box"><div class="insight-label">Key Insight</div><div class="insight-text">' + s.insight + '</div></div>' +
+        '<div class="summary-section"><div class="summary-label">Best for</div><div class="bestfor-text">' + s.bestFor + '</div></div>' +
+      '</div>';
+  } catch(e) {
+    panel.innerHTML = '<div class="book-summary-panel"><div class="ai-loading">Could not load summary. Please try again.</div></div>';
+  }
+};
 
 window.closeModal = function() { document.getElementById('modalOverlay').classList.remove('open'); };
 window.closeModalOutside = function(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); };
